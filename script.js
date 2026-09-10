@@ -1,32 +1,51 @@
-// ================================
-// LIFEADMIN STORAGE
-// ================================
+```javascript
+/* =========================================================
+   LIFEADMIN - COMPLETE JAVASCRIPT
+   ========================================================= */
 
-let bills =
-    JSON.parse(localStorage.getItem("lifeadmin_bills")) || [];
+
+/* =========================================================
+   1. DATA STORAGE
+   ========================================================= */
+
+let bills = JSON.parse(localStorage.getItem("lifeadmin_bills")) || [];
 
 let subscriptions =
-    JSON.parse(localStorage.getItem("lifeadmin_subscriptions")) || [];
+    JSON.parse(
+        localStorage.getItem("lifeadmin_subscriptions")
+    ) || [];
 
 let appointments =
-    JSON.parse(localStorage.getItem("lifeadmin_appointments")) || [];
+    JSON.parse(
+        localStorage.getItem("lifeadmin_appointments")
+    ) || [];
 
 
-// ================================
-// SAVE DATA
-// ================================
+/* =========================================================
+   2. SAVE DATA
+   ========================================================= */
 
-function saveData() {
+function saveBills() {
 
     localStorage.setItem(
         "lifeadmin_bills",
         JSON.stringify(bills)
     );
 
+}
+
+
+function saveSubscriptions() {
+
     localStorage.setItem(
         "lifeadmin_subscriptions",
         JSON.stringify(subscriptions)
     );
+
+}
+
+
+function saveAppointments() {
 
     localStorage.setItem(
         "lifeadmin_appointments",
@@ -36,258 +55,271 @@ function saveData() {
 }
 
 
-// ================================
-// MODAL
-// ================================
+/* =========================================================
+   3. MODALS
+   ========================================================= */
 
 function openModal(id) {
 
-    document.getElementById(id).style.display = "flex";
+    const modal =
+        document.getElementById(id);
+
+    if (modal) {
+
+        modal.classList.add("show");
+
+    }
 
 }
 
 
 function closeModal(id) {
 
-    document.getElementById(id).style.display = "none";
+    const modal =
+        document.getElementById(id);
 
-}
+    if (modal) {
 
-
-window.onclick = function(event) {
-
-    if (event.target.classList.contains("modal")) {
-
-        event.target.style.display = "none";
+        modal.classList.remove("show");
 
     }
 
-};
-
-
-// ================================
-// BILL FORM
-// ================================
-
-const billForm =
-    document.getElementById("billForm");
-
-
-if (billForm) {
-
-    billForm.addEventListener("submit", function(e) {
-
-        e.preventDefault();
-
-
-        const bill = {
-
-            id: Date.now(),
-
-            name:
-                document.getElementById("billName").value,
-
-            price:
-                Number(
-                    document.getElementById("billPrice").value
-                ),
-
-            date:
-                document.getElementById("billDate").value,
-
-            category:
-                document.getElementById("billCategory").value,
-
-            frequency:
-                document.getElementById("billFrequency").value
-
-        };
-
-
-        bills.push(bill);
-
-        saveData();
-
-        billForm.reset();
-
-        closeModal("billModal");
-
-        displayBills();
-
-        updateDashboard();
-
-    });
-
 }
 
 
-// ================================
-// DISPLAY BILLS
-// ================================
+/* Close modal when clicking outside */
 
-function displayBills() {
+window.addEventListener("click", function(event) {
 
-    const container =
-        document.getElementById("billList");
+    if (
+        event.target.classList &&
+        event.target.classList.contains("modal")
+    ) {
 
-    if (!container) return;
+        event.target.classList.remove("show");
+
+    }
+
+});
 
 
-    container.innerHTML = "";
+/* =========================================================
+   4. SUBSCRIPTIONS
+   ========================================================= */
+
+function displaySubscriptions() {
+
+    const list =
+        document.getElementById(
+            "subscriptionList"
+        );
+
+    if (!list) return;
 
 
-    if (bills.length === 0) {
+    list.innerHTML = "";
 
-        container.innerHTML =
-            `<p class="empty">
-                No bills added yet.
-            </p>`;
+
+    if (subscriptions.length === 0) {
+
+        list.innerHTML = `
+
+            <div class="empty-state">
+
+                <h3>No subscriptions yet</h3>
+
+                <p>
+                    Add your first subscription
+                    to start tracking recurring payments.
+                </p>
+
+            </div>
+
+        `;
+
+        updateSubscriptionSummary();
 
         return;
 
     }
 
 
-    bills.forEach(function(bill) {
+    subscriptions.forEach(function(subscription) {
 
-        container.innerHTML += `
+        const card =
+            document.createElement("div");
 
-            <div class="item-card">
+        card.className = "subscription-card card";
 
-                <div class="item-top">
 
-                    <div class="item-icon">
-                        💳
-                    </div>
+        card.innerHTML = `
 
-                    <button
-                        class="delete-btn"
-                        onclick="deleteBill(${bill.id})">
+            <div class="card-top">
 
-                        Delete
+                <div>
 
-                    </button>
+                    <span class="category-badge">
+                        ${escapeHTML(subscription.category)}
+                    </span>
+
+                    <h3>
+                        ${escapeHTML(subscription.name)}
+                    </h3>
 
                 </div>
 
+                <button
+                    class="delete-btn"
+                    onclick="deleteSubscription('${subscription.id}')">
 
-                <h3>
-                    ${bill.name}
-                </h3>
+                    ×
 
+                </button>
 
-                <p>
-                    ${bill.category}
-                </p>
-
-
-                <div class="price">
-                    ₹${bill.price}
-                </div>
+            </div>
 
 
-                <p>
-                    Due: ${formatDate(bill.date)}
-                </p>
+            <div class="subscription-price">
 
+                ₹${Number(subscription.price).toLocaleString("en-IN")}
 
-                <span class="badge">
-                    ${bill.frequency}
+                <span>
+                    /month
                 </span>
+
+            </div>
+
+
+            <div class="subscription-date">
+
+                🔄 Renews on
+
+                <strong>
+                    ${formatDate(subscription.date)}
+                </strong>
 
             </div>
 
         `;
 
+
+        list.appendChild(card);
+
     });
 
 
+    updateSubscriptionSummary();
+
+}
+
+
+function updateSubscriptionSummary() {
+
+    const totalElement =
+        document.getElementById(
+            "subscriptionTotal"
+        );
+
+    const amountElement =
+        document.getElementById(
+            "subscriptionAmount"
+        );
+
+
     const total =
-        bills.reduce(
-            (sum, bill) => sum + bill.price,
+        subscriptions.length;
+
+
+    const monthlyAmount =
+        subscriptions.reduce(
+            function(sum, subscription) {
+
+                return sum +
+                    Number(subscription.price || 0);
+
+            },
             0
         );
 
 
-    const billTotal =
-        document.getElementById("billTotal");
+    if (totalElement) {
 
-    const billAmount =
-        document.getElementById("billAmount");
+        totalElement.textContent = total;
 
-
-    if (billTotal)
-        billTotal.innerText = bills.length;
+    }
 
 
-    if (billAmount)
-        billAmount.innerText = "₹" + total;
+    if (amountElement) {
 
-}
+        amountElement.textContent =
+            "₹" +
+            monthlyAmount.toLocaleString("en-IN");
 
-
-// ================================
-// DELETE BILL
-// ================================
-
-function deleteBill(id) {
-
-    bills =
-        bills.filter(
-            bill => bill.id !== id
-        );
-
-    saveData();
-
-    displayBills();
-
-    updateDashboard();
+    }
 
 }
 
 
-// ================================
-// SUBSCRIPTION FORM
-// ================================
+/* Add subscription */
 
 const subscriptionForm =
-    document.getElementById("subscriptionForm");
+    document.getElementById(
+        "subscriptionForm"
+    );
 
 
 if (subscriptionForm) {
 
     subscriptionForm.addEventListener(
         "submit",
-        function(e) {
+        function(event) {
 
-            e.preventDefault();
+            event.preventDefault();
+
+
+            const name =
+                document.getElementById(
+                    "subscriptionName"
+                ).value.trim();
+
+
+            const price =
+                document.getElementById(
+                    "subscriptionPrice"
+                ).value;
+
+
+            const date =
+                document.getElementById(
+                    "subscriptionDate"
+                ).value;
+
+
+            const category =
+                document.getElementById(
+                    "subscriptionCategory"
+                ).value;
+
+
+            if (!name || !price || !date) {
+
+                return;
+
+            }
 
 
             const subscription = {
 
-                id: Date.now(),
+                id:
+                    Date.now().toString(),
 
-                name:
-                    document.getElementById(
-                        "subscriptionName"
-                    ).value,
+                name: name,
 
-                price:
-                    Number(
-                        document.getElementById(
-                            "subscriptionPrice"
-                        ).value
-                    ),
+                price: Number(price),
 
-                date:
-                    document.getElementById(
-                        "subscriptionDate"
-                    ).value,
+                date: date,
 
-                category:
-                    document.getElementById(
-                        "subscriptionCategory"
-                    ).value
+                category: category
 
             };
 
@@ -297,17 +329,28 @@ if (subscriptionForm) {
             );
 
 
-            saveData();
+            saveSubscriptions();
+
+            displaySubscriptions();
+
 
             subscriptionForm.reset();
+
 
             closeModal(
                 "subscriptionModal"
             );
 
-            displaySubscriptions();
 
-            updateDashboard();
+            showPopupNotification(
+
+                "Subscription Added",
+
+                `${name} has been added successfully.`,
+
+                "🔄"
+
+            );
 
         }
     );
@@ -315,591 +358,355 @@ if (subscriptionForm) {
 }
 
 
-// ================================
-// DISPLAY SUBSCRIPTIONS
-// ================================
-
-function displaySubscriptions() {
-
-    const container =
-        document.getElementById(
-            "subscriptionList"
-        );
-
-    if (!container) return;
-
-
-    container.innerHTML = "";
-
-
-    if (subscriptions.length === 0) {
-
-        container.innerHTML =
-            `<p class="empty">
-                No subscriptions added yet.
-            </p>`;
-
-        return;
-
-    }
-
-
-    subscriptions.forEach(
-        function(subscription) {
-
-            container.innerHTML += `
-
-                <div class="item-card">
-
-                    <div class="item-top">
-
-                        <div class="item-icon">
-                            🔄
-                        </div>
-
-                        <button
-                            class="delete-btn"
-                            onclick="
-                            deleteSubscription(
-                            ${subscription.id}
-                            )">
-
-                            Delete
-
-                        </button>
-
-                    </div>
-
-
-                    <h3>
-                        ${subscription.name}
-                    </h3>
-
-
-                    <p>
-                        ${subscription.category}
-                    </p>
-
-
-                    <div class="price">
-                        ₹${subscription.price}
-                        <small>/ month</small>
-                    </div>
-
-
-                    <p>
-                        Renewal:
-                        ${formatDate(
-                            subscription.date
-                        )}
-                    </p>
-
-
-                    <span class="badge">
-                        Active
-                    </span>
-
-                </div>
-
-            `;
-
-        }
-    );
-
-
-    const total =
-        subscriptions.reduce(
-            (sum, item) =>
-                sum + item.price,
-            0
-        );
-
-
-    const subscriptionTotal =
-        document.getElementById(
-            "subscriptionTotal"
-        );
-
-    const subscriptionAmount =
-        document.getElementById(
-            "subscriptionAmount"
-        );
-
-
-    if (subscriptionTotal)
-        subscriptionTotal.innerText =
-            subscriptions.length;
-
-
-    if (subscriptionAmount)
-        subscriptionAmount.innerText =
-            "₹" + total;
-
-}
-
-
-// ================================
-// DELETE SUBSCRIPTION
-// ================================
+/* Delete subscription */
 
 function deleteSubscription(id) {
 
-    subscriptions =
-        subscriptions.filter(
-            item => item.id !== id
-        );
-
-    saveData();
-
-    displaySubscriptions();
-
-    updateDashboard();
-
-}
-
-
-// ================================
-// APPOINTMENT FORM
-// ================================
-
-const appointmentForm =
-    document.getElementById(
-        "appointmentForm"
-    );
-
-
-if (appointmentForm) {
-
-    appointmentForm.addEventListener(
-        "submit",
-        function(e) {
-
-            e.preventDefault();
-
-
-            const appointment = {
-
-                id: Date.now(),
-
-                name:
-                    document.getElementById(
-                        "appointmentName"
-                    ).value,
-
-                date:
-                    document.getElementById(
-                        "appointmentDate"
-                    ).value,
-
-                time:
-                    document.getElementById(
-                        "appointmentTime"
-                    ).value,
-
-                location:
-                    document.getElementById(
-                        "appointmentLocation"
-                    ).value,
-
-                notes:
-                    document.getElementById(
-                        "appointmentNotes"
-                    ).value
-
-            };
-
-
-            appointments.push(
-                appointment
-            );
-
-
-            saveData();
-
-            appointmentForm.reset();
-
-            closeModal(
-                "appointmentModal"
-            );
-
-            displayAppointments();
-
-            updateDashboard();
-
-        }
-    );
-
-}
-
-
-// ================================
-// DISPLAY APPOINTMENTS
-// ================================
-
-function displayAppointments() {
-
-    const container =
-        document.getElementById(
-            "appointmentList"
-        );
-
-    if (!container) return;
-
-
-    container.innerHTML = "";
-
-
-    if (appointments.length === 0) {
-
-        container.innerHTML =
-            `<p class="empty">
-                No appointments added yet.
-            </p>`;
-
-        return;
-
-    }
-
-
-    appointments
-        .sort(
-            (a, b) =>
-                new Date(
-                    a.date + " " + a.time
-                ) -
-                new Date(
-                    b.date + " " + b.time
-                )
-        )
-        .forEach(
-            function(appointment) {
-
-                container.innerHTML += `
-
-                    <div class="item-card">
-
-                        <div class="item-top">
-
-                            <div class="item-icon">
-                                📅
-                            </div>
-
-                            <button
-                                class="delete-btn"
-                                onclick="
-                                deleteAppointment(
-                                ${appointment.id}
-                                )">
-
-                                Delete
-
-                            </button>
-
-                        </div>
-
-
-                        <h3>
-                            ${appointment.name}
-                        </h3>
-
-
-                        <div class="price">
-                            ${formatDate(
-                                appointment.date
-                            )}
-                        </div>
-
-
-                        <p>
-                            ⏰ ${appointment.time}
-                        </p>
-
-
-                        <p>
-                            📍 ${
-                                appointment.location ||
-                                "No location"
-                            }
-                        </p>
-
-
-                        ${
-                            appointment.notes
-                            ?
-                            `<p>
-                                📝 ${appointment.notes}
-                             </p>`
-                            :
-                            ""
-                        }
-
-                    </div>
-
-                `;
+    const subscription =
+        subscriptions.find(
+            function(item) {
+
+                return item.id === id;
 
             }
         );
 
 
-    const appointmentTotal =
-        document.getElementById(
-            "appointmentTotal"
+    if (!subscription) return;
+
+
+    const confirmDelete =
+        confirm(
+            `Delete ${subscription.name}?`
         );
 
 
-    if (appointmentTotal)
-        appointmentTotal.innerText =
-            appointments.length;
+    if (!confirmDelete) return;
+
+
+    subscriptions =
+        subscriptions.filter(
+            function(item) {
+
+                return item.id !== id;
+
+            }
+        );
+
+
+    saveSubscriptions();
+
+    displaySubscriptions();
 
 }
 
 
-// ================================
-// DELETE APPOINTMENT
-// ================================
+/* =========================================================
+   5. BILLS
+   ========================================================= */
 
-function deleteAppointment(id) {
+function displayBills() {
 
-    appointments =
-        appointments.filter(
-            item => item.id !== id
-        );
-
-    saveData();
-
-    displayAppointments();
-
-    updateDashboard();
-
-}
-
-
-// ================================
-// DASHBOARD
-// ================================
-
-function updateDashboard() {
-
-    const billCount =
+    const list =
         document.getElementById(
-            "billCount"
-        );
-
-    const subscriptionCount =
+            "billList"
+        ) ||
         document.getElementById(
-            "subscriptionCount"
-        );
-
-    const appointmentCount =
-        document.getElementById(
-            "appointmentCount"
-        );
-
-    const monthlyTotal =
-        document.getElementById(
-            "monthlyTotal"
+            "billsList"
         );
 
 
-    if (billCount)
-        billCount.innerText =
-            bills.length;
+    if (!list) return;
 
 
-    if (subscriptionCount)
-        subscriptionCount.innerText =
-            subscriptions.length;
-
-
-    if (appointmentCount)
-        appointmentCount.innerText =
-            appointments.length;
-
-
-    if (monthlyTotal) {
-
-        const billTotal =
-            bills.reduce(
-                (sum, bill) =>
-                    sum + bill.price,
-                0
-            );
-
-
-        const subscriptionTotal =
-            subscriptions.reduce(
-                (sum, item) =>
-                    sum + item.price,
-                0
-            );
-
-
-        monthlyTotal.innerText =
-            "₹" +
-            (billTotal + subscriptionTotal);
-
-    }
-
-
-    displayDashboardBills();
-
-    displayDashboardAppointments();
-
-}
-
-
-// ================================
-// DASHBOARD BILLS
-// ================================
-
-function displayDashboardBills() {
-
-    const container =
-        document.getElementById(
-            "dashboardBills"
-        );
-
-    if (!container) return;
+    list.innerHTML = "";
 
 
     if (bills.length === 0) {
 
-        container.innerHTML =
-            `<p class="empty">
-                No bills added yet.
-            </p>`;
+        list.innerHTML = `
+
+            <div class="empty-state">
+
+                <h3>No bills added yet.</h3>
+
+                <p>
+                    Add your bills to keep track of payments.
+                </p>
+
+            </div>
+
+        `;
+
+        updateBillSummary();
 
         return;
 
     }
 
 
-    container.innerHTML = "";
+    bills.forEach(function(bill) {
+
+        const card =
+            document.createElement("div");
+
+        card.className = "bill-card card";
 
 
-    bills.slice(0, 4).forEach(
-        function(bill) {
+        card.innerHTML = `
 
-            container.innerHTML += `
+            <div class="card-top">
 
-                <div class="item-card">
-
-                    <div class="item-top">
-
-                        <div class="item-icon">
-                            💳
-                        </div>
-
-                        <span class="badge">
-                            ${bill.frequency}
-                        </span>
-
-                    </div>
+                <div>
 
                     <h3>
-                        ${bill.name}
+                        ${escapeHTML(bill.name)}
                     </h3>
 
                     <p>
-                        Due:
                         ${formatDate(bill.date)}
                     </p>
 
-                    <div class="price">
-                        ₹${bill.price}
-                    </div>
-
                 </div>
 
-            `;
+                <button
+                    class="delete-btn"
+                    onclick="deleteBill('${bill.id}')">
 
-        }
-    );
+                    ×
+
+                </button>
+
+            </div>
+
+
+            <h2>
+                ₹${Number(bill.price).toLocaleString("en-IN")}
+            </h2>
+
+        `;
+
+
+        list.appendChild(card);
+
+    });
+
+
+    updateBillSummary();
 
 }
 
 
-// ================================
-// DASHBOARD APPOINTMENTS
-// ================================
+function updateBillSummary() {
 
-function displayDashboardAppointments() {
-
-    const container =
+    const totalElement =
         document.getElementById(
-            "dashboardAppointments"
+            "billTotal"
         );
 
-    if (!container) return;
 
+    if (totalElement) {
 
-    if (appointments.length === 0) {
-
-        container.innerHTML =
-            `<p class="empty">
-                No appointments added yet.
-            </p>`;
-
-        return;
+        totalElement.textContent =
+            bills.length;
 
     }
 
+}
 
-    container.innerHTML = "";
 
+function deleteBill(id) {
 
-    appointments
-        .slice(0, 4)
-        .forEach(
-            function(appointment) {
+    const bill =
+        bills.find(
+            function(item) {
 
-                container.innerHTML += `
-
-                    <div class="item-card">
-
-                        <div class="item-top">
-
-                            <div class="item-icon">
-                                📅
-                            </div>
-
-                        </div>
-
-                        <h3>
-                            ${appointment.name}
-                        </h3>
-
-                        <p>
-                            ${formatDate(
-                                appointment.date
-                            )}
-                        </p>
-
-                        <p>
-                            ⏰ ${appointment.time}
-                        </p>
-
-                    </div>
-
-                `;
+                return item.id === id;
 
             }
         );
 
+
+    if (!bill) return;
+
+
+    if (
+        !confirm(
+            `Delete ${bill.name}?`
+        )
+    ) return;
+
+
+    bills =
+        bills.filter(
+            function(item) {
+
+                return item.id !== id;
+
+            }
+        );
+
+
+    saveBills();
+
+    displayBills();
+
 }
 
 
-// ================================
-// DATE FORMATTER
-// ================================
+/* =========================================================
+   6. APPOINTMENTS
+   ========================================================= */
 
-function formatDate(date) {
+function displayAppointments() {
 
-    if (!date) return "";
+    const list =
+        document.getElementById(
+            "appointmentList"
+        ) ||
+        document.getElementById(
+            "appointmentsList"
+        );
 
-    const d = new Date(date);
 
-    return d.toLocaleDateString(
+    if (!list) return;
+
+
+    list.innerHTML = "";
+
+
+    if (appointments.length === 0) {
+
+        list.innerHTML = `
+
+            <div class="empty-state">
+
+                <h3>No appointments added yet.</h3>
+
+                <p>
+                    Add appointments to receive reminders.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    appointments.forEach(function(appointment) {
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "appointment-card card";
+
+
+        card.innerHTML = `
+
+            <div class="card-top">
+
+                <div>
+
+                    <h3>
+                        ${escapeHTML(appointment.name)}
+                    </h3>
+
+                    <p>
+                        📅 ${formatDate(appointment.date)}
+                    </p>
+
+                    <p>
+                        ⏰ ${escapeHTML(appointment.time || "")}
+                    </p>
+
+                </div>
+
+                <button
+                    class="delete-btn"
+                    onclick="deleteAppointment('${appointment.id}')">
+
+                    ×
+
+                </button>
+
+            </div>
+
+        `;
+
+
+        list.appendChild(card);
+
+    });
+
+}
+
+
+function deleteAppointment(id) {
+
+    const appointment =
+        appointments.find(
+            function(item) {
+
+                return item.id === id;
+
+            }
+        );
+
+
+    if (!appointment) return;
+
+
+    if (
+        !confirm(
+            `Delete ${appointment.name}?`
+        )
+    ) return;
+
+
+    appointments =
+        appointments.filter(
+            function(item) {
+
+                return item.id !== id;
+
+            }
+        );
+
+
+    saveAppointments();
+
+    displayAppointments();
+
+}
+
+
+/* =========================================================
+   7. DATE FUNCTIONS
+   ========================================================= */
+
+function formatDate(dateString) {
+
+    if (!dateString) return "";
+
+
+    const date =
+        new Date(
+            dateString + "T00:00:00"
+        );
+
+
+    if (isNaN(date.getTime())) {
+
+        return dateString;
+
+    }
+
+
+    return date.toLocaleDateString(
         "en-IN",
         {
             day: "numeric",
@@ -911,87 +718,115 @@ function formatDate(date) {
 }
 
 
-// ================================
-// INITIAL LOAD
-// ================================
+function daysUntil(dateString) {
 
-displayBills();
+    const today =
+        new Date();
 
-displaySubscriptions();
-
-displayAppointments();
-
-updateDashboard();
+    today.setHours(
+        0, 0, 0, 0
+    );
 
 
-// ==========================================
-// NOTIFICATION SYSTEM
-// ==========================================
+    const target =
+        new Date(
+            dateString + "T00:00:00"
+        );
+
+    target.setHours(
+        0, 0, 0, 0
+    );
+
+
+    return Math.ceil(
+        (
+            target - today
+        ) /
+        (1000 * 60 * 60 * 24)
+    );
+
+}
+
+
+/* =========================================================
+   8. NOTIFICATION DATA
+   ========================================================= */
 
 function getNotifications() {
 
-    let notifications = [];
-
-    const today = new Date();
-
-    today.setHours(0, 0, 0, 0);
+    const notifications = [];
 
 
-    // BILL NOTIFICATIONS
+    /* -------------------------
+       BILLS
+       ------------------------- */
 
     bills.forEach(function(bill) {
 
-        const dueDate = new Date(bill.date);
-
-        dueDate.setHours(0, 0, 0, 0);
-
-        const difference =
-            Math.ceil(
-                (dueDate - today) /
-                (1000 * 60 * 60 * 24)
-            );
+        const days =
+            daysUntil(bill.date);
 
 
-        if (difference === 0) {
+        if (days === 0) {
 
             notifications.push({
 
-                title: bill.name,
+                id:
+                    `bill-${bill.id}-today`,
+
+                title:
+                    "Bill Due Today",
 
                 message:
-                    `₹${bill.price} is due today.`,
+                    `${bill.name} — ₹${bill.price} is due today.`,
 
-                icon: "💳"
+                icon:
+                    "💳"
 
             });
 
         }
 
-        else if (difference === 1) {
+
+        else if (days === 1) {
 
             notifications.push({
 
-                title: bill.name,
+                id:
+                    `bill-${bill.id}-tomorrow`,
+
+                title:
+                    "Bill Reminder",
 
                 message:
-                    `₹${bill.price} is due tomorrow.`,
+                    `${bill.name} — ₹${bill.price} is due tomorrow.`,
 
-                icon: "💳"
+                icon:
+                    "💳"
 
             });
 
         }
 
-        else if (difference > 1 && difference <= 3) {
+
+        else if (
+            days > 1 &&
+            days <= 3
+        ) {
 
             notifications.push({
 
-                title: bill.name,
+                id:
+                    `bill-${bill.id}-${days}`,
+
+                title:
+                    "Upcoming Bill",
 
                 message:
-                    `₹${bill.price} is due in ${difference} days.`,
+                    `${bill.name} — ₹${bill.price} is due in ${days} days.`,
 
-                icon: "💳"
+                icon:
+                    "💳"
 
             });
 
@@ -1000,62 +835,78 @@ function getNotifications() {
     });
 
 
-    // SUBSCRIPTION NOTIFICATIONS
+    /* -------------------------
+       SUBSCRIPTIONS
+       ------------------------- */
 
     subscriptions.forEach(function(subscription) {
 
-        const renewalDate =
-            new Date(subscription.date);
-
-        renewalDate.setHours(0, 0, 0, 0);
-
-        const difference =
-            Math.ceil(
-                (renewalDate - today) /
-                (1000 * 60 * 60 * 24)
+        const days =
+            daysUntil(
+                subscription.date
             );
 
 
-        if (difference === 0) {
+        if (days === 0) {
 
             notifications.push({
 
-                title: subscription.name,
+                id:
+                    `subscription-${subscription.id}-today`,
+
+                title:
+                    "Subscription Renewal",
 
                 message:
-                    `Your ₹${subscription.price} subscription renews today.`,
+                    `${subscription.name} renews today for ₹${subscription.price}.`,
 
-                icon: "🔄"
+                icon:
+                    "🔄"
 
             });
 
         }
 
-        else if (difference === 1) {
+
+        else if (days === 1) {
 
             notifications.push({
 
-                title: subscription.name,
+                id:
+                    `subscription-${subscription.id}-tomorrow`,
+
+                title:
+                    "Subscription Reminder",
 
                 message:
-                    `Your subscription renews tomorrow.`,
+                    `${subscription.name} renews tomorrow for ₹${subscription.price}.`,
 
-                icon: "🔄"
+                icon:
+                    "🔄"
 
             });
 
         }
 
-        else if (difference > 1 && difference <= 3) {
+
+        else if (
+            days > 1 &&
+            days <= 3
+        ) {
 
             notifications.push({
 
-                title: subscription.name,
+                id:
+                    `subscription-${subscription.id}-${days}`,
+
+                title:
+                    "Upcoming Subscription",
 
                 message:
-                    `Your subscription renews in ${difference} days.`,
+                    `${subscription.name} renews in ${days} days.`,
 
-                icon: "🔄"
+                icon:
+                    "🔄"
 
             });
 
@@ -1064,62 +915,78 @@ function getNotifications() {
     });
 
 
-    // APPOINTMENT NOTIFICATIONS
+    /* -------------------------
+       APPOINTMENTS
+       ------------------------- */
 
     appointments.forEach(function(appointment) {
 
-        const appointmentDate =
-            new Date(appointment.date);
-
-        appointmentDate.setHours(0, 0, 0, 0);
-
-        const difference =
-            Math.ceil(
-                (appointmentDate - today) /
-                (1000 * 60 * 60 * 24)
+        const days =
+            daysUntil(
+                appointment.date
             );
 
 
-        if (difference === 0) {
+        if (days === 0) {
 
             notifications.push({
 
-                title: appointment.name,
+                id:
+                    `appointment-${appointment.id}-today`,
+
+                title:
+                    "Appointment Today",
 
                 message:
-                    `You have an appointment today at ${appointment.time}.`,
+                    `${appointment.name} is today at ${appointment.time || "your scheduled time"}.`,
 
-                icon: "📅"
+                icon:
+                    "📅"
 
             });
 
         }
 
-        else if (difference === 1) {
+
+        else if (days === 1) {
 
             notifications.push({
 
-                title: appointment.name,
+                id:
+                    `appointment-${appointment.id}-tomorrow`,
+
+                title:
+                    "Appointment Tomorrow",
 
                 message:
-                    `Tomorrow at ${appointment.time}.`,
+                    `${appointment.name} is tomorrow at ${appointment.time || "your scheduled time"}.`,
 
-                icon: "📅"
+                icon:
+                    "📅"
 
             });
 
         }
 
-        else if (difference > 1 && difference <= 3) {
+
+        else if (
+            days > 1 &&
+            days <= 3
+        ) {
 
             notifications.push({
 
-                title: appointment.name,
+                id:
+                    `appointment-${appointment.id}-${days}`,
+
+                title:
+                    "Upcoming Appointment",
 
                 message:
-                    `Your appointment is in ${difference} days.`,
+                    `${appointment.name} is in ${days} days.`,
 
-                icon: "📅"
+                icon:
+                    "📅"
 
             });
 
@@ -1129,16 +996,27 @@ function getNotifications() {
 
 
     return notifications;
+
 }
 
+
+/* =========================================================
+   9. NOTIFICATION PANEL
+   ========================================================= */
 
 function displayNotifications() {
 
     const list =
-        document.getElementById("notificationList");
+        document.getElementById(
+            "notificationList"
+        );
+
 
     const count =
-        document.getElementById("notificationCount");
+        document.getElementById(
+            "notificationCount"
+        );
+
 
     if (!list) return;
 
@@ -1149,28 +1027,37 @@ function displayNotifications() {
 
     if (count) {
 
-        count.innerText =
+        count.textContent =
             notifications.length;
 
-        if (notifications.length === 0) {
 
-            count.style.display = "none";
+        if (
+            notifications.length === 0
+        ) {
+
+            count.style.display =
+                "none";
 
         } else {
 
-            count.style.display = "flex";
+            count.style.display =
+                "flex";
 
         }
 
     }
 
 
-    if (notifications.length === 0) {
+    if (
+        notifications.length === 0
+    ) {
 
         list.innerHTML = `
+
             <p class="empty">
                 🎉 You're all caught up!
             </p>
+
         `;
 
         return;
@@ -1183,29 +1070,461 @@ function displayNotifications() {
 
     notifications.forEach(function(notification) {
 
-        list.innerHTML += `
+        const item =
+            document.createElement("div");
 
-            <div class="notification unread">
 
-                <div class="notification-icon">
-                    ${notification.icon}
+        item.className =
+            "notification unread";
+
+
+        item.innerHTML = `
+
+            <div class="notification-icon">
+
+                ${notification.icon}
+
+            </div>
+
+
+            <div class="notification-content">
+
+                <h4>
+                    ${escapeHTML(notification.title)}
+                </h4>
+
+                <p>
+                    ${escapeHTML(notification.message)}
+                </p>
+
+                <div class="notification-time">
+
+                    LifeAdmin Reminder
+
                 </div>
 
-                <div class="notification-content">
+            </div>
 
-                    <h4>
-                        ${notification.title}
-                    </h4>
+        `;
+
+
+        list.appendChild(item);
+
+    });
+
+}
+
+
+/* =========================================================
+   10. NOTIFICATION PANEL TOGGLE
+   ========================================================= */
+
+function toggleNotifications() {
+
+    const panel =
+        document.getElementById(
+            "notificationPanel"
+        );
+
+
+    if (!panel) return;
+
+
+    if (
+        panel.style.display === "block"
+    ) {
+
+        panel.style.display =
+            "none";
+
+    } else {
+
+        panel.style.display =
+            "block";
+
+        displayNotifications();
+
+    }
+
+}
+
+
+/* =========================================================
+   11. MARK NOTIFICATIONS READ
+   ========================================================= */
+
+function markAllRead() {
+
+    const count =
+        document.getElementById(
+            "notificationCount"
+        );
+
+
+    if (count) {
+
+        count.style.display =
+            "none";
+
+    }
+
+
+    const notifications =
+        document.querySelectorAll(
+            ".notification"
+        );
+
+
+    notifications.forEach(function(notification) {
+
+        notification.classList.remove(
+            "unread"
+        );
+
+    });
+
+}
+
+
+/* =========================================================
+   12. POPUP NOTIFICATION
+   ========================================================= */
+
+function showPopupNotification(
+    title,
+    message,
+    icon = "🔔"
+) {
+
+    const container =
+        document.getElementById(
+            "popupContainer"
+        );
+
+
+    if (!container) return;
+
+
+    const popup =
+        document.createElement("div");
+
+
+    popup.className =
+        "popup-notification";
+
+
+    popup.innerHTML = `
+
+        <div class="popup-icon">
+
+            ${icon}
+
+        </div>
+
+
+        <div class="popup-content">
+
+            <h4>
+                ${escapeHTML(title)}
+            </h4>
+
+            <p>
+                ${escapeHTML(message)}
+            </p>
+
+        </div>
+
+
+        <button
+            class="popup-close"
+            onclick="closePopup(this)">
+
+            ×
+
+        </button>
+
+    `;
+
+
+    container.appendChild(
+        popup
+    );
+
+
+    setTimeout(
+        function() {
+
+            closePopup(
+                popup.querySelector(
+                    ".popup-close"
+                )
+            );
+
+        },
+        6000
+    );
+
+}
+
+
+function closePopup(button) {
+
+    if (!button) return;
+
+
+    const popup =
+        button.parentElement;
+
+
+    if (!popup) return;
+
+
+    popup.classList.add(
+        "popup-hide"
+    );
+
+
+    setTimeout(
+        function() {
+
+            popup.remove();
+
+        },
+        400
+    );
+
+}
+
+
+/* =========================================================
+   13. PREVENT REPEATED POPUPS
+   ========================================================= */
+
+function checkPopupNotifications() {
+
+    const notifications =
+        getNotifications();
+
+
+    if (
+        notifications.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    let shown =
+        JSON.parse(
+            localStorage.getItem(
+                "lifeadmin_shown_notifications"
+            )
+        ) || [];
+
+
+    notifications.forEach(function(notification) {
+
+        if (
+            shown.includes(
+                notification.id
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        showPopupNotification(
+
+            notification.title,
+
+            notification.message,
+
+            notification.icon
+
+        );
+
+
+        shown.push(
+            notification.id
+        );
+
+    });
+
+
+    localStorage.setItem(
+
+        "lifeadmin_shown_notifications",
+
+        JSON.stringify(shown)
+
+    );
+
+}
+
+
+/* =========================================================
+   14. DASHBOARD
+   ========================================================= */
+
+function updateDashboard() {
+
+    const billTotal =
+        document.getElementById(
+            "totalBills"
+        );
+
+
+    const subscriptionTotal =
+        document.getElementById(
+            "totalSubscriptions"
+        );
+
+
+    const appointmentTotal =
+        document.getElementById(
+            "totalAppointments"
+        );
+
+
+    const monthlyCommitment =
+        document.getElementById(
+            "monthlyCommitment"
+        );
+
+
+    if (billTotal) {
+
+        billTotal.textContent =
+            bills.length;
+
+    }
+
+
+    if (subscriptionTotal) {
+
+        subscriptionTotal.textContent =
+            subscriptions.length;
+
+    }
+
+
+    if (appointmentTotal) {
+
+        appointmentTotal.textContent =
+            appointments.length;
+
+    }
+
+
+    if (monthlyCommitment) {
+
+        const amount =
+            subscriptions.reduce(
+                function(sum, subscription) {
+
+                    return sum +
+                        Number(
+                            subscription.price || 0
+                        );
+
+                },
+                0
+            );
+
+
+        monthlyCommitment.textContent =
+            "₹" +
+            amount.toLocaleString("en-IN");
+
+    }
+
+
+    displayUpcomingBills();
+
+    displayUpcomingAppointments();
+
+}
+
+
+/* =========================================================
+   15. UPCOMING BILLS
+   ========================================================= */
+
+function displayUpcomingBills() {
+
+    const container =
+        document.getElementById(
+            "upcomingBills"
+        );
+
+
+    if (!container) return;
+
+
+    const upcoming =
+        bills
+            .filter(function(bill) {
+
+                return daysUntil(
+                    bill.date
+                ) >= 0;
+
+            })
+            .sort(function(a, b) {
+
+                return (
+                    new Date(a.date) -
+                    new Date(b.date)
+                );
+
+            })
+            .slice(0, 5);
+
+
+    if (
+        upcoming.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <p>
+                No bills added yet.
+            </p>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML = "";
+
+
+    upcoming.forEach(function(bill) {
+
+        container.innerHTML += `
+
+            <div class="upcoming-item">
+
+                <div>
+
+                    <strong>
+                        ${escapeHTML(bill.name)}
+                    </strong>
 
                     <p>
-                        ${notification.message}
+                        ${formatDate(bill.date)}
                     </p>
 
-                    <div class="notification-time">
-                        LifeAdmin Reminder
-                    </div>
-
                 </div>
+
+                <strong>
+                    ₹${Number(bill.price).toLocaleString("en-IN")}
+                </strong>
 
             </div>
 
@@ -1216,46 +1535,258 @@ function displayNotifications() {
 }
 
 
-function toggleNotifications() {
+/* =========================================================
+   16. UPCOMING APPOINTMENTS
+   ========================================================= */
 
-    const panel =
-        document.getElementById("notificationPanel");
+function displayUpcomingAppointments() {
 
-    if (!panel) return;
+    const container =
+        document.getElementById(
+            "upcomingAppointments"
+        );
 
 
-    if (panel.style.display === "block") {
+    if (!container) return;
 
-        panel.style.display = "none";
 
-    } else {
+    const upcoming =
+        appointments
+            .filter(function(appointment) {
 
-        panel.style.display = "block";
+                return daysUntil(
+                    appointment.date
+                ) >= 0;
+
+            })
+            .sort(function(a, b) {
+
+                return (
+                    new Date(a.date) -
+                    new Date(b.date)
+                );
+
+            })
+            .slice(0, 5);
+
+
+    if (
+        upcoming.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <p>
+                No appointments added yet.
+            </p>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML = "";
+
+
+    upcoming.forEach(function(appointment) {
+
+        container.innerHTML += `
+
+            <div class="upcoming-item">
+
+                <div>
+
+                    <strong>
+                        📅 ${escapeHTML(appointment.name)}
+                    </strong>
+
+                    <p>
+                        ${formatDate(appointment.date)}
+                    </p>
+
+                </div>
+
+                <span>
+                    ⏰ ${escapeHTML(appointment.time || "")}
+                </span>
+
+            </div>
+
+        `;
+
+    });
+
+}
+
+
+/* =========================================================
+   17. SECURITY / TEXT CLEANING
+   ========================================================= */
+
+function escapeHTML(value) {
+
+    if (value === undefined || value === null) {
+
+        return "";
+
+    }
+
+
+    return String(value)
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================================
+   18. CLOSE NOTIFICATION WHEN CLICKING OUTSIDE
+   ========================================================= */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        const panel =
+            document.getElementById(
+                "notificationPanel"
+            );
+
+
+        const button =
+            document.querySelector(
+                ".notification-btn"
+            );
+
+
+        if (!panel || !button) return;
+
+
+        if (
+            !panel.contains(event.target) &&
+            !button.contains(event.target)
+        ) {
+
+            panel.style.display =
+                "none";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   19. INITIALIZE LIFEADMIN
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        displayBills();
+
+        displaySubscriptions();
+
+        displayAppointments();
+
+        updateDashboard();
 
         displayNotifications();
 
-    }
-
-}
-
-
-function markAllRead() {
-
-    const count =
-        document.getElementById("notificationCount");
-
-    if (count) {
-
-        count.style.display = "none";
+        checkPopupNotifications();
 
     }
+);
 
-}
 
+/* =========================================================
+   20. AUTOMATIC NOTIFICATION CHECK
+   ========================================================= */
 
-displayNotifications();
+/*
+   Check every 60 seconds.
+*/
 
 setInterval(
-    displayNotifications,
+    function() {
+
+        displayNotifications();
+
+        checkPopupNotifications();
+
+    },
     60000
 );
+
+
+/* =========================================================
+   21. SERVICE WORKER / PWA
+   ========================================================= */
+
+if (
+    "serviceWorker" in navigator
+) {
+
+    window.addEventListener(
+        "load",
+        function() {
+
+            navigator.serviceWorker
+                .register(
+                    "service-worker.js"
+                )
+
+                .then(
+                    function() {
+
+                        console.log(
+                            "LifeAdmin PWA ready."
+                        );
+
+                    }
+                )
+
+                .catch(
+                    function(error) {
+
+                        console.log(
+                            "Service worker error:",
+                            error
+                        );
+
+                    }
+                );
+
+        }
+    );
+
+}
+```
+
+[/writing]
