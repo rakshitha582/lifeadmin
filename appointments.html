@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+        LifeAdmin - Appointments
+    </title>
+
+   <link rel="icon" type="image/png" href="icons/icon-192.png">
+
+<link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#7c5cff">
+
+
+</head>
+
+
+<body>
+
+
+<header class="navbar">
+
+
+    <div class="logo">
+        Life<span>Admin</span>
+    </div>
+
+
+
+    <nav>
+
+        <a href="index.html">
+            Dashboard
+        </a>
+
+        <a href="bills.html">
+            Bills
+        </a>
+
+        <a href="subscriptions.html">
+            Subscriptions
+        </a>
+
+        <a
+            href="appointments.html"
+            class="active">
+
+            Appointments
+
+        </a>
+
+    </nav>
+
+<div class="nav-right">
+
+    <button class="notification-btn" onclick="toggleNotifications()">
+        🔔
+        <span id="notificationCount">0</span>
+    </button>
+
+    <div id="notificationPanel" class="notification-panel">
+
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <button onclick="markAllRead()">Mark all read</button>
+        </div>
+
+        <div id="notificationList">
+            <p class="empty">No notifications</p>
+        </div>
+
+    </div>
+
+    <div class="profile">R</div>
+
+</div>
+
+       </div>
+
+
+</header>
+
+
+
+<main class="container">
+
+
+    <div class="page-heading">
+
+
+        <div>
+
+            <p class="small-text">
+                YOUR SCHEDULE
+            </p>
+
+            <h1>
+                Appointments
+            </h1>
+
+            <p>
+                Never miss an important appointment.
+            </p>
+
+        </div>
+
+
+
+        <button
+            class="primary-btn"
+            onclick="openModal('appointmentModal')">
+
+            + Add Appointment
+
+        </button>
+
+
+    </div>
+
+
+
+    <section class="summary-row">
+
+
+        <div class="mini-card">
+
+            <p>
+                Upcoming
+            </p>
+
+            <h2 id="appointmentTotal">
+                0
+            </h2>
+
+        </div>
+
+
+    </section>
+
+
+
+    <section
+        id="appointmentList"
+        class="card-grid">
+
+    </section>
+
+
+</main>
+
+
+
+<!-- MODAL -->
+
+
+<div
+    id="appointmentModal"
+    class="modal">
+
+
+    <div class="modal-content">
+
+
+        <div class="modal-header">
+
+            <h2>
+                Add Appointment
+            </h2>
+
+            <button
+                onclick="closeModal('appointmentModal')">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+
+        <form
+            id="appointmentForm">
+
+
+            <label>
+                Appointment Title
+            </label>
+
+
+            <input
+                type="text"
+                id="appointmentName"
+                placeholder="Doctor Appointment"
+                required>
+
+
+
+            <label>
+                Date
+            </label>
+
+
+            <input
+                type="date"
+                id="appointmentDate"
+                required>
+
+
+
+            <label>
+                Time
+            </label>
+
+
+            <input
+                type="time"
+                id="appointmentTime"
+                required>
+
+
+
+            <label>
+                Location
+            </label>
+
+
+            <input
+                type="text"
+                id="appointmentLocation"
+                placeholder="City Hospital">
+
+
+
+            <label>
+                Notes
+            </label>
+
+
+            <textarea
+                id="appointmentNotes"
+                placeholder="Add some notes...">
+            </textarea>
+
+
+
+            <button
+                type="submit"
+                class="primary-btn full">
+
+                Add Appointment
+
+            </button>
+
+
+        </form>
+
+
+    </div>
+
+</div>
+
+
+<div id="popupContainer"></div>
+<script src="script.js"></script>
+
+
+</body>
+
+</html>

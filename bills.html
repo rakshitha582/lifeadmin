@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LifeAdmin - Bills</title>
+
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
+
+<link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#7c5cff">
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="logo">Life<span>Admin</span></div>
+
+    <nav>
+        <a href="index.html">Dashboard</a>
+        <a href="bills.html" class="active">Bills</a>
+        <a href="subscriptions.html">Subscriptions</a>
+        <a href="appointments.html">Appointments</a>
+    </nav>
+
+    <div class="nav-right">
+
+    <button class="notification-btn" onclick="toggleNotifications()">
+        🔔
+        <span id="notificationCount">0</span>
+    </button>
+
+    <div id="notificationPanel" class="notification-panel">
+
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <button onclick="markAllRead()">Mark all read</button>
+        </div>
+
+        <div id="notificationList">
+            <p class="empty">No notifications</p>
+        </div>
+
+    </div>
+
+    <div class="profile">R</div>
+
+</div>
+
+</header>
+
+
+<main class="container">
+
+    <div class="page-heading">
+
+        <div>
+            <p class="small-text">FINANCES</p>
+            <h1>My Bills</h1>
+            <p>Keep track of your upcoming payments.</p>
+        </div>
+
+        <button class="primary-btn" onclick="openModal('billModal')">
+            + Add Bill
+        </button>
+
+    </div>
+
+
+    <section class="summary-row">
+
+        <div class="mini-card">
+            <p>Total Bills</p>
+            <h2 id="billTotal">0</h2>
+        </div>
+
+        <div class="mini-card">
+            <p>Monthly Amount</p>
+            <h2 id="billAmount">₹0</h2>
+        </div>
+
+    </section>
+
+
+    <section id="billList" class="card-grid">
+
+    </section>
+
+</main>
+
+
+<!-- ADD BILL MODAL -->
+
+<div id="billModal" class="modal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+            <h2>Add New Bill</h2>
+            <button onclick="closeModal('billModal')">×</button>
+        </div>
+
+        <form id="billForm">
+
+            <label>Bill Name</label>
+            <input type="text" id="billName" placeholder="Electricity" required>
+
+            <label>Amount</label>
+            <input type="number" id="billPrice" placeholder="1200" required>
+
+            <label>Due Date</label>
+            <input type="date" id="billDate" required>
+
+            <label>Category</label>
+
+            <select id="billCategory">
+
+                <option>Electricity</option>
+                <option>Internet</option>
+                <option>Mobile</option>
+                <option>Water</option>
+                <option>Rent</option>
+                <option>Other</option>
+
+            </select>
+
+            <label>Payment Frequency</label>
+
+            <select id="billFrequency">
+
+                <option>Monthly</option>
+                <option>Yearly</option>
+                <option>One Time</option>
+
+            </select>
+
+            <button type="submit" class="primary-btn full">
+                Add Bill
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<div id="popupContainer"></div>
+<script src="script.js"></script>
+
+</body>
+</html>

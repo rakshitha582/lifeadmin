@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeAdmin - Dashboard</title>
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
+
+<link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#7c5cff">
+</head>
+
+<body>
+
+<header class="navbar">
+    <div class="logo">Life<span>Admin</span></div>
+
+    <nav>
+        <a href="index.html" class="active">Dashboard</a>
+        <a href="bills.html">Bills</a>
+        <a href="subscriptions.html">Subscriptions</a>
+        <a href="appointments.html">Appointments</a>
+    </nav>
+	<div class="nav-right">
+
+    <button class="notification-btn" onclick="toggleNotifications()">
+        🔔
+        <span id="notificationCount">0</span>
+    </button>
+
+    <div id="notificationPanel" class="notification-panel">
+
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <button onclick="markAllRead()">Mark all read</button>
+        </div>
+
+        <div id="notificationList">
+            <p class="empty">No notifications</p>
+        </div>
+
+    </div>
+
+    <div class="profile">R</div>
+
+</div>
+    
+</header>
+
+
+<main class="container">
+
+    <section class="welcome">
+        <div>
+            <p class="small-text">PERSONAL LIFE MANAGER</p>
+            <h1>Good evening, Rakshitha 👋</h1>
+            <p>Keep your important life tasks organized in one place.</p>
+        </div>
+    </section>
+
+
+    <section class="stats">
+
+        <div class="stat-card">
+            <div class="icon purple">💳</div>
+            <div>
+                <p>Total Bills</p>
+                <h2 id="billCount">0</h2>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="icon blue">🔄</div>
+            <div>
+                <p>Subscriptions</p>
+                <h2 id="subscriptionCount">0</h2>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="icon orange">📅</div>
+            <div>
+                <p>Appointments</p>
+                <h2 id="appointmentCount">0</h2>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="icon green">₹</div>
+            <div>
+                <p>Monthly Commitments</p>
+                <h2 id="monthlyTotal">₹0</h2>
+            </div>
+        </div>
+
+    </section>
+
+
+    <section class="dashboard-grid">
+
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h2>Upcoming Bills</h2>
+                <a href="bills.html">View all →</a>
+            </div>
+
+            <div id="dashboardBills" class="items">
+                <p class="empty">No bills added yet.</p>
+            </div>
+        </div>
+
+
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h2>Upcoming Appointments</h2>
+                <a href="appointments.html">View all →</a>
+            </div>
+
+            <div id="dashboardAppointments" class="items">
+                <p class="empty">No appointments added yet.</p>
+            </div>
+        </div>
+
+    </section>
+
+</main>
+<div id="popupContainer"></div>
+<script src="script.js"></script>
+
+</body>
+</html>

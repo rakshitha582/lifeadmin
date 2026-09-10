@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>LifeAdmin - Subscriptions</title>
+
+   <link rel="icon" type="image/png" href="icons/icon-192.png">
+
+<link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#7c5cff">
+
+
+</head>
+
+
+<body>
+
+
+<header class="navbar">
+
+    <div class="logo">
+        Life<span>Admin</span>
+    </div>
+
+
+    <nav>
+
+        <a href="index.html">
+            Dashboard
+        </a>
+
+        <a href="bills.html">
+            Bills
+        </a>
+
+        <a href="subscriptions.html"
+           class="active">
+            Subscriptions
+        </a>
+
+        <a href="appointments.html">
+            Appointments
+        </a>
+
+    </nav>
+<div class="nav-right">
+
+    <button class="notification-btn" onclick="toggleNotifications()">
+        🔔
+        <span id="notificationCount">0</span>
+    </button>
+
+    <div id="notificationPanel" class="notification-panel">
+
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <button onclick="markAllRead()">Mark all read</button>
+        </div>
+
+        <div id="notificationList">
+            <p class="empty">No notifications</p>
+        </div>
+
+    </div>
+
+    <div class="profile">R</div>
+
+</div>
+
+       </div>
+
+</header>
+
+
+
+<main class="container">
+
+
+    <div class="page-heading">
+
+        <div>
+
+            <p class="small-text">
+                RECURRING PAYMENTS
+            </p>
+
+            <h1>
+                Subscriptions
+            </h1>
+
+            <p>
+                Keep your recurring services under control.
+            </p>
+
+        </div>
+
+
+        <button
+            class="primary-btn"
+            onclick="openModal('subscriptionModal')">
+
+            + Add Subscription
+
+        </button>
+
+    </div>
+
+
+
+    <section class="summary-row">
+
+
+        <div class="mini-card">
+
+            <p>
+                Active Subscriptions
+            </p>
+
+            <h2 id="subscriptionTotal">
+                0
+            </h2>
+
+        </div>
+
+
+
+        <div class="mini-card">
+
+            <p>
+                Monthly Cost
+            </p>
+
+            <h2 id="subscriptionAmount">
+                ₹0
+            </h2>
+
+        </div>
+
+
+    </section>
+
+
+
+    <section
+        id="subscriptionList"
+        class="card-grid">
+
+    </section>
+
+
+</main>
+
+
+
+<!-- MODAL -->
+
+
+<div
+    id="subscriptionModal"
+    class="modal">
+
+
+    <div class="modal-content">
+
+
+        <div class="modal-header">
+
+            <h2>
+                Add Subscription
+            </h2>
+
+            <button
+                onclick="closeModal('subscriptionModal')">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+
+        <form id="subscriptionForm">
+
+
+            <label>
+                Service Name
+            </label>
+
+            <input
+                type="text"
+                id="subscriptionName"
+                placeholder="Netflix"
+                required>
+
+
+
+            <label>
+                Monthly Price
+            </label>
+
+            <input
+                type="number"
+                id="subscriptionPrice"
+                placeholder="649"
+                required>
+
+
+
+            <label>
+                Renewal Date
+            </label>
+
+            <input
+                type="date"
+                id="subscriptionDate"
+                required>
+
+
+
+            <label>
+                Category
+            </label>
+
+
+            <select
+                id="subscriptionCategory">
+
+                <option>
+                    Entertainment
+                </option>
+
+                <option>
+                    Music
+                </option>
+
+                <option>
+                    Cloud Storage
+                </option>
+
+                <option>
+                    Software
+                </option>
+
+                <option>
+                    Fitness
+                </option>
+
+                <option>
+                    Other
+                </option>
+
+            </select>
+
+
+
+            <button
+                type="submit"
+                class="primary-btn full">
+
+                Add Subscription
+
+            </button>
+
+
+        </form>
+
+
+    </div>
+
+</div>
+
+
+<div id="popupContainer"></div>
+<script src="script.js"></script>
+
+
+</body>
+
+</html>
